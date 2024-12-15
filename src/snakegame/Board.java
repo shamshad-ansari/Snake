@@ -20,12 +20,18 @@ public class Board  extends JPanel implements ActionListener {
     private final int[] x = new int[ALL_DOTS];
     private final int[] y = new int[ALL_DOTS];
 
-    private final int RANDOM_POSITION = 29;
+    private  boolean inGame = true;
+    private boolean isLeft = false;
+    private boolean isRight = true;
+    private boolean isUp = false;
+    private boolean isDown = false;
+
 
     private Timer timer;
 
 
     Board(){
+        addKeyListener(new TAdapter());
         setBackground(Color.BLACK);
         setFocusable(true);
 
@@ -59,10 +65,11 @@ public class Board  extends JPanel implements ActionListener {
     }
 
     public void locateApple(){
-        int r = (int)(Math.random()*RANDOM_POSITION);
+        int RANDOM_POSITION = 29;
+        int r = (int)(Math.random()* RANDOM_POSITION);
         apple_x = r * DOT_SIZE;
 
-        int y = (int)(Math.random()*RANDOM_POSITION);
+        int y = (int)(Math.random()* RANDOM_POSITION);
         apple_y = y * DOT_SIZE;
     }
 
@@ -73,16 +80,21 @@ public class Board  extends JPanel implements ActionListener {
     }
 
     public void draw(Graphics g){
-        g.drawImage(apple, apple_x, apple_y, this);
+        if (inGame) {
+            g.drawImage(apple, apple_x, apple_y, this);
 
-        for (int i = 0; i<dots; i++){
-            if(i==0){
-                g.drawImage(head, x[i], y[i], this);
-            } else{
-                g.drawImage(dot, x[i], y[i], this);
+            for (int i = 0 ; i < dots; i++) {
+                if (i == 0) {
+                    g.drawImage(head, x[i], y[i], this);
+                } else {
+                    g.drawImage(dot, x[i], y[i], this);
+                }
             }
+
+            Toolkit.getDefaultToolkit().sync();
+        } else {
+            gameOver(g);
         }
-        Toolkit.getDefaultToolkit().sync();
     }
 
     public void move(){
@@ -90,13 +102,99 @@ public class Board  extends JPanel implements ActionListener {
             x[i] = x[i-1];
             y[i] = y[i-1];
         }
-//        x[0] += DOT_SIZE;
 
+        if (isLeft){
+            x[0] -= DOT_SIZE;
+        }
+        if(isRight){
+            x[0] += DOT_SIZE;
+        }
+        if(isUp){
+            y[0] -= DOT_SIZE;
+        }
+        if(isDown){
+            y[0] += DOT_SIZE;
+        }
+
+    }
+    public void appleEaten(){
+        if((x[0] == apple_x) && (y[0] == apple_y)){
+            dots++;
+            locateApple();
+        }
+    }
+
+    public void checkCollision() {
+        for(int i = dots; i > 0; i--) {
+            if ((i > 4) && (x[0] == x[i]) && (y[0] == y[i])) {
+                inGame = false;
+                break;
+            }
+        }
+
+        if (y[0] >= 300) {
+            inGame = false;
+        }
+        if (x[0] >= 300) {
+            inGame = false;
+        }
+        if (y[0] < 0) {
+            inGame = false;
+        }
+        if (x[0] < 0) {
+            inGame = false;
+        }
+
+        if (!inGame) {
+            timer.stop();
+        }
+    }
+
+    public void gameOver(Graphics g) {
+        String msg = "Game Over!";
+        Font font = new Font("SAN_SERIF", Font.BOLD, 14);
+        FontMetrics matrices = getFontMetrics(font);
+
+        g.setColor(Color.WHITE);
+        g.setFont(font);
+        g.drawString(msg, (300 - matrices.stringWidth(msg)) / 2, 300/2);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        move();
+        if (inGame) {
+            appleEaten();
+            checkCollision();
+            move();
+        }
         repaint();
+    }
+
+    public class TAdapter extends KeyAdapter{
+        @Override
+        public void keyPressed(KeyEvent e){
+            int key = e.getKeyCode();
+
+            if (key == KeyEvent.VK_LEFT && (!isRight)) {
+                isLeft = true;
+                isUp = false;
+                isDown = false;
+            }
+            if (key == KeyEvent.VK_RIGHT && (!isLeft)) {
+                isRight = true;
+                isUp = false;
+                isDown = false;
+            }
+            if (key == KeyEvent.VK_UP && (!isDown)) {
+                isLeft = false;
+                isUp = true;
+                isRight = false;
+            }
+            if (key == KeyEvent.VK_DOWN && (!isUp)) {
+                isLeft = false;
+                isDown = true;
+                isRight = false;
+            }
+        }
     }
 }
