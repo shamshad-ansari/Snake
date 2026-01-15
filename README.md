@@ -4,7 +4,9 @@ A lightweight, minimal implementation of the classic Snake game built using Java
 
 ## 🎮 Gameplay Preview
 
-![Gameplay Demo](https://raw.githubusercontent.com/shamshad-ansari/Snake/main/src/snakegame/icons/Snake.gif)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/shamshad-ansari/Snake/main/src/snakegame/icons/Snake.gif" width="400" alt="Gameplay Demo">
+</p>
 
 <!-- To add a gameplay GIF:
 1. Record your game using a screen recorder (e.g., OBS Studio, ShareX, or LICEcap)
